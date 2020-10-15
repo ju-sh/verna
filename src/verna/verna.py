@@ -29,22 +29,37 @@ class Color(int):
         """Return core value in hex form as a string with out any prefix"""
         return hex(self.integer)[2:]
 
+    def replace(self,
+                red: Union[int, str] = None,             
+                green: Union[int, str] = None,             
+                blue: Union[int, str] = None,             
+                alpha: Union[float, str] = None) -> 'Color':
+        """
+
+        """
+        if red
+        red = comps.get('red', self.red)
+        green = comps.get('green', self.green)
+        blue = comps.get('blue', self.blue)
+        alpha = comps.get('alpha', self.alpha)
+        return self.__class__.from_rgba(red, green, blue, alpha)
+
     @classmethod
-    def from_name(cls, name: str):
+    def from_name(cls, name: str) -> 'Color':
         """
         Return a Color object based on the given color name.
 
         Only CSS3 extended color keyword names are supported.
         """
         name = name.lower()
-        return names.COLORS[name]
+        return cls(names.COLORS[name])
 
     @classmethod
     def from_rgba(cls,
                   red: Union[int, str],
                   green: Union[int, str],
                   blue: Union[int, str],
-                  alpha: Union[float, str] = 0):
+                  alpha: Union[float, str] = 0) -> 'Color':
         """
         Return a Color object from a set of RGBA values
         """
