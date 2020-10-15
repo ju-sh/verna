@@ -94,7 +94,7 @@ class TestToInt:
         (0.5, [], 128),
     ])
     def test_valid(self, val, skip_types, expected):
-        assert Color.to_int(val) == expected
+        assert Color.to_int(val, skip_types) == expected
 
     @pytest.mark.parametrize('val,skip_types', [
         ("50", []),

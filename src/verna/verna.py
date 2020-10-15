@@ -97,14 +97,13 @@ class Color(int):
                 raise ValueError("Invalid value")
             int_val = val
 
-        elif isinstance(val, float):
+        else:
+            # By this point, val must be a float
             # For float, value should be between 0.0 and 1.0 (inclusive)
             if val < 0 or val > 1:
                 raise ValueError("Invalid value")
             int_val = round(val * 0xff)
 
-        else:
-            raise ValueError("Invalid Color value")
         return int_val
 
     @property
