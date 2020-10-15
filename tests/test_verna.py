@@ -106,4 +106,4 @@ class TestToInt:
 
 
 def test_from_name():
-    assert Color.from_name('gainsboro') == 0xdcdcdc
+    assert Color.from_name('gainsboro') == Color(0xdcdcdc)

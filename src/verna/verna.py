@@ -37,7 +37,7 @@ class Color(int):
         Only CSS3 extended color keyword names are supported.
         """
         name = name.lower()
-        return names.COLORS[name]
+        return cls(names.COLORS[name])
 
     @classmethod
     def from_rgba(cls,
