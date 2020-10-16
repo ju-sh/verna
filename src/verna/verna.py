@@ -2,15 +2,15 @@
 Data structures used to handle colors in Verna
 """
 
-from typing import Union, List, Tuple
-import colorsys
+from typing import Union, Tuple
 
 from verna import names
 
+
 def _round(val: float) -> int:
     """
-    Built-in round() rounds towards an even value if val is equidistant from both
-    limits as in examples below.
+    Built-in round() rounds towards an even value if val is equidistant from
+    both limits as in examples below.
     >>> round(1.5)  # 2
     >>> round(2.5)  # 2
     >>> round(3.5)  # 4
@@ -51,9 +51,9 @@ class Color(int):
         return hex(self.integer)[2:]
 
     def replace(self,
-                red: Union[int, str] = None,             
-                green: Union[int, str] = None,             
-                blue: Union[int, str] = None,             
+                red: Union[float, str] = None,
+                green: Union[float, str] = None,
+                blue: Union[float, str] = None,
                 alpha: Union[float, str] = None) -> 'Color':
         """
         Return a new Color by changing properties of a pre-existing instance.
@@ -61,27 +61,35 @@ class Color(int):
         if red is None:
             red_int = self.red
         else:
-            red_int = self.normalize(red, skip_types=[float])
+            temp_int = self.normalize(red)
+            assert isinstance(temp_int, int)    # for mypy
+            red_int = temp_int
 
         if green is None:
             green_int = self.green
         else:
-            green_int = self.normalize(green, skip_types=[float])
+            temp_int = self.normalize(green)
+            assert isinstance(temp_int, int)    # for mypy
+            green_int = temp_int
 
         if blue is None:
             blue_int = self.blue
         else:
-            blue_int = self.normalize(blue, skip_types=[float])
+            temp_int = self.normalize(blue)
+            assert isinstance(temp_int, int)    # for mypy
+            blue_int = temp_int
 
         if alpha is None:
             alpha_int = self.alpha
         else:
-            alpha_int = self.normalize(alpha)
+            temp_int = self.normalize(alpha)
+            assert isinstance(temp_int, int)    # for mypy
+            alpha_int = temp_int
 
         return self.__class__.from_rgba(red_int, green_int,
                                         blue_int, alpha_int)
 
-    def rgba(self) -> Tuple[int, int, int, int]:
+    def rgba(self) -> Tuple[int, int, int, float]:
         """Return red, green, blue, alpha as a tuple in that order"""
         return self.red, self.green, self.blue, self.alpha
 
@@ -97,17 +105,21 @@ class Color(int):
 
     @classmethod
     def from_rgba(cls,
-                  red: Union[int, str],
-                  green: Union[int, str],
-                  blue: Union[int, str],
+                  red: Union[float, str],
+                  green: Union[float, str],
+                  blue: Union[float, str],
                   alpha: Union[float, str] = 0) -> 'Color':
         """
         Return a Color object from a set of RGBA values
         """
-        red_int = cls.normalize(red, skip_types=[float])
-        green_int = cls.normalize(green, skip_types=[float])
-        blue_int = cls.normalize(blue, skip_types=[float])
+        red_int = cls.normalize(red)
+        green_int = cls.normalize(green)
+        blue_int = cls.normalize(blue)
         alpha_int = cls.normalize(alpha)
+        assert isinstance(red_int, int)     # for mypy
+        assert isinstance(green_int, int)   # for mypy
+        assert isinstance(blue_int, int)    # for mypy
+        assert isinstance(alpha_int, int)   # for mypy
         integer = ((alpha_int << 24) | (red_int << 16)
                    | (green_int << 8) | blue_int)
         return cls(integer)
@@ -124,7 +136,6 @@ class Color(int):
         """
         return cls.normalize(val, target='float')
 
-    
     @classmethod
     def to_percentage(cls, val: Union[float, str]) -> float:
         """
@@ -159,11 +170,12 @@ class Color(int):
 
         Raises ValueError if conversion cannot be performed.
         """
-        return cls.normalize(val, target='int')
+        val_int = cls.normalize(val, target='int')
+        assert isinstance(val_int, int)
+        return val_int
 
     @staticmethod
     def normalize(val: Union[float, str],
-                  skip_types: List[type] = None,
                   target: str = 'int') -> float:
         """
         Convert one of the following values of val:
@@ -171,11 +183,9 @@ class Color(int):
          - float value ranging from 0 to 0.1 (eg: 0.5)
          - int value ranging from 0 to 255 (eg: 128)
         to an equivalent value of the specified target type which ranges from:
-         - 0 to 255 for 'int'
-         - 0.0 to 1.0 for 'float'
-         - 0.0 to 100.0 for 'percentage'
-
-        Skip conversion if type of val is in skip_types.
+         - 0 to 255 if target is 'int'
+         - 0.0 to 1.0 if target is 'float'
+         - 0.0 to 100.0 if target is 'percentage'
 
         Used to validate color component values.
 
@@ -190,15 +200,6 @@ class Color(int):
         target = target.lower()
         if target not in ['int', 'percentage', 'float']:
             raise ValueError(f"{target}: Unknown conversion target type")
-
-        if skip_types is None:
-            skip_types = []
-
-        #if (type(val) in skip_types) or (type(val) not in [int, float, str]):
-        if (isinstance(val, tuple(skip_types))
-            or not isinstance(val, (int, float, str))):
-            #XXX: make skip types arg a tuple instead of list
-            raise ValueError("Invalid value type")
 
         if isinstance(val, str):
             # For str, the value should be a float percentage
@@ -231,8 +232,9 @@ class Color(int):
             return int_val
         if target == "float":
             return int_val / 0xff
-        if target == "percentage":
-            return (int_val / 0xff) * 100.0
+        # #if target == "percentage":
+        # By this point, only "percentage" is left
+        return (int_val / 0xff) * 100.0
 
     @property
     def alpha(self) -> float:
@@ -244,6 +246,7 @@ class Color(int):
     @alpha.setter
     def alpha(self, val: Union[float, str]):
         val_int = self.normalize(val)
+        assert isinstance(val_int, int)  # for mypy
         self.integer = (val_int << 24) | (self.integer & 0x00ffffff)
 
     @property
@@ -256,6 +259,7 @@ class Color(int):
     @red.setter
     def red(self, val: Union[float, str]):
         val_int = self.normalize(val)
+        assert isinstance(val_int, int)  # for mypy
         self.integer = (val_int << 16) | (self.integer & 0xff00ffff)
 
     @property
@@ -268,6 +272,7 @@ class Color(int):
     @green.setter
     def green(self, val: Union[float, str]):
         val_int = self.normalize(val)
+        assert isinstance(val_int, int)  # for mypy
         self.integer = (val_int << 8) | (self.integer & 0xffff00ff)
 
     @property
@@ -280,6 +285,5 @@ class Color(int):
     @blue.setter
     def blue(self, val: Union[float, str]):
         val_int = self.normalize(val)
+        assert isinstance(val_int, int)  # for mypy
         self.integer = val_int | (self.integer & 0xffffff00)
-
-#XXX: Rename to_int() to _normalize() and create a to_int??

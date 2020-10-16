@@ -39,7 +39,7 @@ The different color components can be edited with one of the following values
 
  - a percentage in string form with a '%' at the end (eg: "20%")
  - an integer from 0 to 255 (eg: 0xff, 255)
- - a float from 0.0 to 1.0 (only for `alpha` property. eg: 0.4)
+ - a float from 0.0 to 1.0 (eg: 0.4)
 
 So, the following are valid:
 
@@ -54,7 +54,7 @@ So, the following are valid:
     color.green = 217
     color.green = "85%"
     color.blue = 0xf5
-    color.blue = "96%"
+    color.blue = 0.7
 
 whereas the following will cause error:
 
@@ -65,7 +65,6 @@ whereas the following will cause error:
     color.alpha = "120"    # No '%' at end
     color.alpha = 1.2      # > 1.0
     color.alpha = True     # Invalid type: bool
-    color.red = 0.5        # float value accepted only for alpha
 
 A `Color` object may be created in multiple ways.
 

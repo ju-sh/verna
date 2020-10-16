@@ -89,21 +89,21 @@ class TestDunders:
 
 
 class TestNormalize:
-    @pytest.mark.parametrize('val,skip_types,target,expected', [
-        ("50%", [], "int", 128),
-        (0.5, [], "int", 128),
+    @pytest.mark.parametrize('val,target,expected', [
+        ("50%", "int", 128),
+        (0.5, "int", 128),
+        (120, "percentage", 47.05882352941176),
     ])
-    def test_valid(self, val, skip_types, target, expected):
-        assert Color.normalize(val, skip_types, target) == expected
+    def test_valid(self, val, target, expected):
+        assert Color.normalize(val, target) == expected
 
-    @pytest.mark.parametrize('val,skip_types,target', [
-        ("50", [], "int"),
-        (0.5, [float], "int"),
-        (0.55, [float], "bool"),
+    @pytest.mark.parametrize('val,target', [
+        ("50", "int"),
+        (0.55, "bool"),
     ])
-    def test_invalid(self, val, skip_types, target):
+    def test_invalid(self, val, target):
         with pytest.raises(ValueError):
-            assert Color.normalize(val, skip_types, target)
+            assert Color.normalize(val, target)
 
 
 class TestReplace:
@@ -113,8 +113,8 @@ class TestReplace:
          0x1abcdef, 0x1abcdef),
         ({'red': 1, 'green': '70%', 'blue': 181, 'alpha': 0},
          0x1abcdef, 0x0001b3b5),
-        #({'red': 1.0, 'green': '70%', 'blue': 181, 'alpha': 0},
-        # 0x1abcdef, 0xffb3b5),
+        ({'red': 1.0, 'green': '70%', 'blue': 181, 'alpha': 0},
+         0x1abcdef, 0xffb3b5),
     ])
     def test_valid(self, props, color_hex, expected):
         color = Color(color_hex)
@@ -123,16 +123,15 @@ class TestReplace:
     def test_invalid(self):
         color = Color(0x1abcdef)
         with pytest.raises(ValueError):
-            #color.replace(red=0.1)
-            color.replace(red=0.1)
+            color.replace(red=True)
 
 
 def test_from_name():
     assert Color.from_name('gainsboro') == Color(0xdcdcdc)
 
+
 def test_rgba():
     color = Color(0x80abcdef)
-    red, green, blue, alpha =  color.rgba()
+    red, green, blue, alpha = color.rgba()
     alpha = round(alpha, 2)
     assert (red, green, blue, alpha) == (0xab, 0xcd, 0xef, 0.5)
-

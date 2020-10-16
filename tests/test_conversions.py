@@ -22,6 +22,7 @@ class TestToInt:
         with pytest.raises(ValueError):
             Color.to_int(val)
 
+
 class TestToFloat:
     """Test Color.to_float()"""
     @pytest.mark.parametrize('val,expected', [
