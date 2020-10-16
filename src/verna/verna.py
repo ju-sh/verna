@@ -37,12 +37,28 @@ class Color(int):
         """
 
         """
-        if red
-        red = comps.get('red', self.red)
-        green = comps.get('green', self.green)
-        blue = comps.get('blue', self.blue)
-        alpha = comps.get('alpha', self.alpha)
-        return self.__class__.from_rgba(red, green, blue, alpha)
+        if red is None:
+            red_int = self.red
+        else:
+            red_int = self.to_int(red, skip_types=[float])
+
+        if green is None:
+            green_int = self.green
+        else:
+            green_int = self.to_int(green, skip_types=[float])
+
+        if blue is None:
+            blue_int = self.blue
+        else:
+            blue_int = self.to_int(blue, skip_types=[float])
+
+        if alpha is None:
+            alpha_int = self.alpha
+        else:
+            alpha_int = self.to_int(alpha)
+
+        return self.__class__.from_rgba(red_int, green_int,
+                                        blue_int, alpha_int)
 
     @classmethod
     def from_name(cls, name: str) -> 'Color':

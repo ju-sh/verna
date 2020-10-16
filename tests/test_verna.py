@@ -107,3 +107,10 @@ class TestToInt:
 
 def test_from_name():
     assert Color.from_name('gainsboro') == Color(0xdcdcdc)
+
+@pytest.mark.parametrize('props,color_hex,expected', [
+    ({'red': '50%', 'blue': 234}, 0x1abcdef, 0x180cdea),
+])
+def test_replace(props, color_hex, expected):
+    color = Color(color_hex)
+    assert color.replace(**props).integer == expected
