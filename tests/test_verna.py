@@ -24,17 +24,13 @@ class TestEdit:
 
     @pytest.mark.parametrize('prop,color_hex,arg,expected', [
         ('alpha', 0xeeff22aa, 0xff, 0xffff22aa),     # int/hex
-        ('alpha', 0xeeff22aa, "50%", 0x80ff22aa),    # percentage
         ('alpha', 0xeeff22aa, 0.5, 0x80ff22aa),      # float
 
         ('red', 0xeeff22aa, 0xed, 0xeeed22aa),
-        ('red', 0xeeff22aa, "99%", 0xeefc22aa),
 
         ('green', 0xeeff22aa, 0x58, 0xeeff58aa),
-        ('green', 0xeeff22aa, "68%", 0xeeffadaa),
 
         ('blue', 0xeeff22aa, 0xbe, 0xeeff22be),
-        ('blue', 0xeeff22aa, "59%", 0xeeff2296),
     ])
     def test_valid_edit(self, prop, color_hex, arg, expected):
         """Edit a color which already has an alpha value"""
@@ -89,31 +85,30 @@ class TestDunders:
 
 
 class TestNormalize:
-    @pytest.mark.parametrize('val,target,expected', [
-        ("50%", "int", 128),
-        (0.5, "int", 128),
-        (120, "percentage", 47.05882352941176),
+    @pytest.mark.parametrize('val,expected', [
+        (0.5, 0.5),
+        (120, 0.47058823529411764),
+        (128, 0.5019607843137255),
     ])
-    def test_valid(self, val, target, expected):
-        assert Color.normalize(val, target) == expected
+    def test_valid(self, val, expected):
+        assert Color.normalize(val) == expected
 
-    @pytest.mark.parametrize('val,target', [
-        ("50", "int"),
-        (0.55, "bool"),
+    @pytest.mark.parametrize('val', [
+        "50", 1.55,
     ])
-    def test_invalid(self, val, target):
+    def test_invalid(self, val):
         with pytest.raises(ValueError):
-            assert Color.normalize(val, target)
+            assert Color.normalize(val)
 
 
 class TestReplace:
     @pytest.mark.parametrize('props,color_hex,expected', [
-        ({'red': '50%', 'blue': 234}, 0x1abcdef, 0x180cdea),
+        ({'red': 0.5, 'blue': 234}, 0x1abcdef, 0x180cdea),
         ({'red': None, 'green': None, 'blue': None, 'alpha': None},
          0x1abcdef, 0x1abcdef),
-        ({'red': 1, 'green': '70%', 'blue': 181, 'alpha': 0},
+        ({'red': 1, 'green': 0.7, 'blue': 181, 'alpha': 0},
          0x1abcdef, 0x0001b3b5),
-        ({'red': 1.0, 'green': '70%', 'blue': 181, 'alpha': 0},
+        ({'red': 1.0, 'green': 0.7, 'blue': 181, 'alpha': 0},
          0x1abcdef, 0xffb3b5),
     ])
     def test_valid(self, props, color_hex, expected):
