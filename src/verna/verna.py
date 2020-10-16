@@ -2,7 +2,8 @@
 Data structures used to handle colors in Verna
 """
 
-from typing import Union, List
+from typing import Union, List, Tuple
+import colorsys
 
 from verna import names
 
@@ -35,7 +36,7 @@ class Color(int):
                 blue: Union[int, str] = None,             
                 alpha: Union[float, str] = None) -> 'Color':
         """
-
+        Return a new Color by changing properties of a pre-existing instance.
         """
         if red is None:
             red_int = self.red
@@ -59,6 +60,10 @@ class Color(int):
 
         return self.__class__.from_rgba(red_int, green_int,
                                         blue_int, alpha_int)
+
+    def rgba(self) -> Tuple[int, int, int, int]:
+        """Return red, green, blue, alpha as a tuple in that order"""
+        return self.red, self.green, self.blue, self.alpha
 
     @classmethod
     def from_name(cls, name: str) -> 'Color':
@@ -86,6 +91,13 @@ class Color(int):
         integer = ((alpha_int << 24) | (red_int << 16)
                    | (green_int << 8) | blue_int)
         return cls(integer)
+
+#    @staticmethod
+#    def to_float
+#
+#    
+#    @staticmethod
+#    def to_percentage
 
     @staticmethod
     def to_int(val: Union[float, str],
@@ -184,3 +196,5 @@ class Color(int):
     def blue(self, val: Union[float, str]):
         val_int = self.to_int(val)
         self.integer = val_int | (self.integer & 0xffffff00)
+
+#XXX: Rename to_int() to _normalize() and create a to_int??

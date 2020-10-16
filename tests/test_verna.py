@@ -105,12 +105,26 @@ class TestToInt:
             assert Color.to_int(val, skip_types)
 
 
+class TestReplace:
+    @pytest.mark.parametrize('props,color_hex,expected', [
+        ({'red': '50%', 'blue': 234}, 0x1abcdef, 0x180cdea),
+    ])
+    def test_valid(self, props, color_hex, expected):
+        color = Color(color_hex)
+        assert color.replace(**props).integer == expected
+
+    def test_invalid(self):
+        color = Color(0x1abcdef)
+        with pytest.raises(ValueError):
+            color.replace(red=0.1)
+
+
 def test_from_name():
     assert Color.from_name('gainsboro') == Color(0xdcdcdc)
 
-@pytest.mark.parametrize('props,color_hex,expected', [
-    ({'red': '50%', 'blue': 234}, 0x1abcdef, 0x180cdea),
-])
-def test_replace(props, color_hex, expected):
-    color = Color(color_hex)
-    assert color.replace(**props).integer == expected
+def test_rgba():
+    color = Color(0x80abcdef)
+    red, green, blue, alpha =  color.rgba()
+    alpha = round(alpha, 2)
+    assert (red, green, blue, alpha) == (0xab, 0xcd, 0xef, 0.5)
+
