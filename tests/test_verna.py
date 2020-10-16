@@ -88,26 +88,33 @@ class TestDunders:
         assert str(color) == "eeff22aa"
 
 
-class TestToInt:
-    @pytest.mark.parametrize('val,skip_types,expected', [
-        ("50%", [], 128),
-        (0.5, [], 128),
+class TestNormalize:
+    @pytest.mark.parametrize('val,skip_types,target,expected', [
+        ("50%", [], "int", 128),
+        (0.5, [], "int", 128),
     ])
-    def test_valid(self, val, skip_types, expected):
-        assert Color.to_int(val, skip_types) == expected
+    def test_valid(self, val, skip_types, target, expected):
+        assert Color.normalize(val, skip_types, target) == expected
 
-    @pytest.mark.parametrize('val,skip_types', [
-        ("50", []),
-        (0.5, [float]),
+    @pytest.mark.parametrize('val,skip_types,target', [
+        ("50", [], "int"),
+        (0.5, [float], "int"),
+        (0.55, [float], "bool"),
     ])
-    def test_invalid(self, val, skip_types):
+    def test_invalid(self, val, skip_types, target):
         with pytest.raises(ValueError):
-            assert Color.to_int(val, skip_types)
+            assert Color.normalize(val, skip_types, target)
 
 
 class TestReplace:
     @pytest.mark.parametrize('props,color_hex,expected', [
         ({'red': '50%', 'blue': 234}, 0x1abcdef, 0x180cdea),
+        ({'red': None, 'green': None, 'blue': None, 'alpha': None},
+         0x1abcdef, 0x1abcdef),
+        ({'red': 1, 'green': '70%', 'blue': 181, 'alpha': 0},
+         0x1abcdef, 0x0001b3b5),
+        #({'red': 1.0, 'green': '70%', 'blue': 181, 'alpha': 0},
+        # 0x1abcdef, 0xffb3b5),
     ])
     def test_valid(self, props, color_hex, expected):
         color = Color(color_hex)
@@ -116,6 +123,7 @@ class TestReplace:
     def test_invalid(self):
         color = Color(0x1abcdef)
         with pytest.raises(ValueError):
+            #color.replace(red=0.1)
             color.replace(red=0.1)
 
 
