@@ -8,13 +8,11 @@ class TestEdit:
     @pytest.mark.parametrize('prop,color_hex,arg', [
         ('alpha', 0xeeff22aa, 0x1ff),    # > 0xff
         ('alpha', 0xeeff22aa, -1),       # < 0.0
-        ('alpha', 0xeeff22aa, "120%"),   # > 100%
-        ('alpha', 0xeeff22aa, "120"),    # No '%'
-        ('alpha', 0xeeff22aa, 1.2),      # > 1.0
-        ('alpha', 0xeeff22aa, True),     # Invalid type: bool
-
-        ('red', 0xeeff22aa, 0x3ed),
-        ('red', 0xeeff22aa, "399%"),
+        ('red', 0xeeff22aa, "120%"),     # Invalid type
+        ('red', 0xeeff22aa, "120"),      # Invalid type
+        ('green', 0xeeff22aa, 1.2),      # > 1.0
+        ('green', 0xeeff22aa, True),     # Invalid type: bool
+        ('blue', 0xeeff22aa, 0x3ed),     # > 0xff
     ])
     def test_invalid_edit(self, prop, color_hex, arg):
         """Modifications that should raise exception"""
@@ -25,12 +23,9 @@ class TestEdit:
     @pytest.mark.parametrize('prop,color_hex,arg,expected', [
         ('alpha', 0xeeff22aa, 0xff, 0xffff22aa),     # int/hex
         ('alpha', 0xeeff22aa, 0.5, 0x80ff22aa),      # float
-
         ('red', 0xeeff22aa, 0xed, 0xeeed22aa),
-
         ('green', 0xeeff22aa, 0x58, 0xeeff58aa),
-
-        ('blue', 0xeeff22aa, 0xbe, 0xeeff22be),
+        ('blue', 0xeeff22aa, 0.21, 0xeeff2236),
     ])
     def test_valid_edit(self, prop, color_hex, arg, expected):
         """Edit a color which already has an alpha value"""
@@ -56,6 +51,7 @@ class TestPropAccess:
 
 
 class TestFromRGBA:
+    """Tests for Color.from_rgba()"""
     def test_with_alpha(self):
         color = Color.from_rgba(0xef, 0xa1, 0xde, 0.5)
         assert color.integer == 0x80efa1de
@@ -85,23 +81,26 @@ class TestDunders:
 
 
 class TestNormalize:
+    """Tests for Color._normalize()"""
     @pytest.mark.parametrize('val,expected', [
         (0.5, 0.5),
         (120, 0.47058823529411764),
         (128, 0.5019607843137255),
     ])
     def test_valid(self, val, expected):
-        assert Color.normalize(val) == expected
+        assert Color._normalize(val) == expected
 
     @pytest.mark.parametrize('val', [
-        "50", 1.55,
+        "50",   # invalid type
+        1.55,   # > 1.0
     ])
     def test_invalid(self, val):
         with pytest.raises(ValueError):
-            assert Color.normalize(val)
+            assert Color._normalize(val)
 
 
 class TestReplace:
+    """Tests for Color.replace()"""
     @pytest.mark.parametrize('props,color_hex,expected', [
         ({'red': 0.5, 'blue': 234}, 0x1abcdef, 0x180cdea),
         ({'red': None, 'green': None, 'blue': None, 'alpha': None},
@@ -118,7 +117,7 @@ class TestReplace:
     def test_invalid(self):
         color = Color(0x1abcdef)
         with pytest.raises(ValueError):
-            color.replace(red=True)
+            color.replace(red=True)  # invalid type
 
 
 def test_from_name():

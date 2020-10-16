@@ -77,22 +77,22 @@ class Color(int):
         if red is None:
             red_int = self.red
         else:
-            red_int = _rounded_int(self.normalize(red))
+            red_int = _rounded_int(self._normalize(red))
 
         if green is None:
             green_int = self.green
         else:
-            green_int = _rounded_int(self.normalize(green))
+            green_int = _rounded_int(self._normalize(green))
 
         if blue is None:
             blue_int = self.blue
         else:
-            blue_int = _rounded_int(self.normalize(blue))
+            blue_int = _rounded_int(self._normalize(blue))
 
         if alpha is None:
             alpha_int = self.alpha
         else:
-            alpha_int = _rounded_int(self.normalize(alpha))
+            alpha_int = _rounded_int(self._normalize(alpha))
 
         return self.__class__.from_rgba(red_int, green_int,
                                         blue_int, alpha_int)
@@ -120,10 +120,10 @@ class Color(int):
         """
         Returns a Color object from a set of RGBA values
         """
-        red_int = _rounded_int(cls.normalize(red))
-        green_int = _rounded_int(cls.normalize(green))
-        blue_int = _rounded_int(cls.normalize(blue))
-        alpha_int = _rounded_int(cls.normalize(alpha))
+        red_int = _rounded_int(cls._normalize(red))
+        green_int = _rounded_int(cls._normalize(green))
+        blue_int = _rounded_int(cls._normalize(blue))
+        alpha_int = _rounded_int(cls._normalize(alpha))
         integer = ((alpha_int << 24) | (red_int << 16)
                    | (green_int << 8) | blue_int)
         return cls(integer)
@@ -137,7 +137,7 @@ class Color(int):
 
         Raises ValueError if conversion cannot be performed.
         """
-        val_float = cls.normalize(val)
+        val_float = cls._normalize(val)
         return _rounded_float(val_float)
 
     @classmethod
@@ -149,11 +149,11 @@ class Color(int):
 
         Raises ValueError if conversion cannot be performed.
         """
-        val_float = cls.normalize(val)
+        val_float = cls._normalize(val)
         return _rounded_int(val_float)
 
     @staticmethod
-    def normalize(val: float) -> float:
+    def _normalize(val: float) -> float:
         """
         Validate and convert a color component value in the form of an
         integer ranging from 0 to 255 or a float ranging from 0.0 to 1.0
@@ -191,7 +191,7 @@ class Color(int):
 
     @alpha.setter
     def alpha(self, val: float):
-        val_int = _rounded_int(self.normalize(val))
+        val_int = _rounded_int(self._normalize(val))
         self.integer = (val_int << 24) | (self.integer & 0x00ffffff)
 
     @property
@@ -203,7 +203,7 @@ class Color(int):
 
     @red.setter
     def red(self, val: float):
-        val_int = _rounded_int(self.normalize(val))
+        val_int = _rounded_int(self._normalize(val))
         self.integer = (val_int << 16) | (self.integer & 0xff00ffff)
 
     @property
@@ -215,7 +215,7 @@ class Color(int):
 
     @green.setter
     def green(self, val: float):
-        val_int = _rounded_int(self.normalize(val))
+        val_int = _rounded_int(self._normalize(val))
         self.integer = (val_int << 8) | (self.integer & 0xffff00ff)
 
     @property
@@ -227,5 +227,5 @@ class Color(int):
 
     @blue.setter
     def blue(self, val: float):
-        val_int = _rounded_int(self.normalize(val))
+        val_int = _rounded_int(self._normalize(val))
         self.integer = val_int | (self.integer & 0xffffff00)
