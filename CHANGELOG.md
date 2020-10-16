@@ -1,5 +1,7 @@
-<h4> v0.1.0 () </h4>
+<h4> v1.0.0 () </h4>
 
+ - Disallow percentage values as strings. Float value can readily be
+   converted to percentage.
  - Allow assigning float values (ranging from 0.0 to 1.0) for red,
    green and blue properties.
  - Add `to_int()`, `to_float()` and `to_percentage()` functions.
