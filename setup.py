@@ -5,7 +5,7 @@ long_description = pathlib.Path("README.md").read_text()
 
 setuptools.setup(
     name="verna",
-    version="0.0.2",
+    version="1.0.0-alpha",
     author="Julin S",
     author_email="",
     description="A simple module to handle colors",
